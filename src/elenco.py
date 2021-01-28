@@ -69,9 +69,10 @@ def solve(bound, grupos, v, l, n, i=0, atores_escolhidos=[]):
     """
     # print("-------------- entrei na solve")
     # print("atores escolhidos:", atores_escolhidos)
-    ok = verifica_factibilidade(grupos, l, n, i, atores_escolhidos)
-    if not ok:
-        return ([], -1, i)
+    if i == 0:
+        ok = verifica_factibilidade(grupos, l, n, i, atores_escolhidos)
+        if not ok:
+            return ([], -1, i)
     if len(atores_escolhidos) == n: # já pegou todos os personagens
         return (atores_escolhidos, bound(n, v, i, atores_escolhidos), i)
 
