@@ -1,6 +1,16 @@
 import sys
 import datetime as dt
 
+def custo(v, atores_escolhidos):
+    """
+    INPUT:
+    * vetor de custos dos atores
+    * atores já escolhidos
+    OUTPUT:
+    * custo já obtido
+    """
+    return sum([v[ator] for ator in atores_escolhidos])
+
 def bound_original(n, v, i, atores_escolhidos):
     """
     INPUT:
@@ -11,10 +21,10 @@ def bound_original(n, v, i, atores_escolhidos):
     OUTPUT:
     * menor custo possível de obter
     """
-    custo = sum([v[ator] for ator in atores_escolhidos])
+    custo_atual = custo(v, atores_escolhidos)
     atores_restantes = v[i:].copy()
     atores_restantes.sort()
-    return custo + sum(atores_restantes[:n-len(atores_escolhidos)])
+    return custo_atual + sum(atores_restantes[:n-len(atores_escolhidos)])
 
 def bound_alternativa():
     pass
@@ -22,34 +32,33 @@ def bound_alternativa():
 def verifica_factibilidade(grupos, l, n, i, atores_escolhidos):
     """
     INPUT:
-    * grupos sociais de cada ator
-    * numero de grupos sociais
-    * numero de personagens
-    * ator atualmente contemplado
-    * atores ja escolhidos
+    * grupos: grupos sociais de cada ator
+    * l: numero de grupos sociais
+    * n: numero de personagens
+    * i: ator atualmente contemplado
+    * atores_escolhidos: atores ja escolhidos
     OUTPUT:
     * tem soluçoes factiveis (True ou False)
     """
+    # testes de corner case da função
+    # if numero_atores <= i and len(atores_escolhidos) < n:
+    #     return False
+
     numero_atores = len(grupos)
-    if len(atores_escolhidos) > numero_atores:
-        # print("lenatoresescolhidos>=numatores")
-        return False
-    if numero_atores <= i and len(atores_escolhidos) < n:
-        # print("numatores<=i")
-        # print("atores_escolhidos: ", atores_escolhidos)
-        return False
-    grupos_contemplados = set([
+    contemplados = set([
         grupo for a in atores_escolhidos for grupo in grupos[a]
         ])
-    grupos_restantes = set([
+    restantes = set([
         grupo for a in range(i, numero_atores) for grupo in grupos[a]
         ])
-    # print("i: ", i)
-    # print("contemplados: ", grupos_contemplados)
-    # print("restantes: ", grupos_restantes)
-    # print("faltam: ", grupos_restantes - grupos_contemplados)
-    # print("")
-    if len(grupos_contemplados.union(grupos_restantes)) != l:
+    # teste 1: não pode contemplar todos os grupos
+    if len(contemplados.union(restantes)) != l:
+        return False
+    # teste 2: escolheu mais atores do que personagens
+    if len(atores_escolhidos) > n:
+        return False
+    # teste 3: não vai atingir o número suficiente de atores
+    if len(atores_escolhidos)+numero_atores-i < n:
         return False
     return True
 
@@ -74,7 +83,7 @@ def solve(bound, grupos, v, l, n, i=0, atores_escolhidos=[]):
         if not ok:
             return ([], -1, i)
     if len(atores_escolhidos) == n: # já pegou todos os personagens
-        return (atores_escolhidos, bound(n, v, i, atores_escolhidos), i)
+        return (atores_escolhidos, custo(v, atores_escolhidos), i)
 
     e = bound(n, v, i+1, atores_escolhidos)
     d = bound(n, v, i+1, atores_escolhidos+[i])
