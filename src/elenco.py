@@ -14,12 +14,12 @@ def custo(atores):
     OUTPUT:
     * custo já obtido
     """
+    global v
     return sum([v[ator] for ator in atores])
 
-def bound_1(n, i, atores):
+def bound_1(i, atores):
     """
     INPUT:
-    * n: numero de personagens
     * i: ator atual
     * atores: atores já escolhidos
     OUTPUT:
@@ -27,85 +27,102 @@ def bound_1(n, i, atores):
     """
     return custo(atores)
 
-def bound_2(n, i, atores):
+def bound_2(i, atores):
     """
     INPUT:
-    * n: numero de personagens
     * i: ator atual
     * atores: atores já escolhidos
     OUTPUT:
     * menor custo possível (segundo essa bound)
     """
+    global v
     custo_atual = custo(atores)
     faltantes = v.copy().sort()[:n-i]
     return custo_atual + custo(faltantes)
 
-def verifica_factibilidade(grupos, l, n, i, atores):
+def verifica_factibilidade(i, atores):
     """
     INPUT:
-    * grupos: grupos sociais de cada ator
-    * l: numero de grupos sociais
-    * n: numero de personagens
     * i: ator atualmente contemplado
     * atores: atores ja escolhidos
     OUTPUT:
     * tem soluçoes factiveis (True ou False)
     """
-    # testes de corner case da função
-    # if numero_atores <= i and len(atores_escolhidos) < n:
-    #     return False
-
+    global grupos, n
+    print("i: {}, atores: {}".format(i, atores))
     numero_atores = len(grupos)
-    contemplados = set([
-        grupo for a in atores for grupo in grupos[a]
-        ])
-    restantes = set([
-        grupo for a in range(i, numero_atores) for grupo in grupos[a]
-        ])
+    # testes de corner case da função
+    if numero_atores <= i and len(atores_escolhidos) < n:
+        print("i")
+        return False
+    contemplados = set()
+    for ator in atores:
+        for grupo in grupos[ator]:
+            contemplados.add(grupo)
+    restantes = set()
+    for ator in range(i, numero_atores):
+        for grupo in grupos[ator]:
+            restantes.add(grupo)
     # teste 1: não pode contemplar todos os grupos
     if len(contemplados.union(restantes)) != l:
+        print("teste 1")
         return False
     # teste 2: escolheu mais atores do que personagens
     if len(atores) > n:
+        print("teste 2")
         return False
     # teste 3: não vai atingir o número suficiente de atores
     if len(atores)+numero_atores-i < n:
+        print("teste 3")
         return False
+    print("passou")
     return True
 
-def solve(grupos, l, n, i=0, atores=[]):
+def solve(i=0, atores=[]):
     """
     INPUT:
-    * grupos: grupos sociais de cada ator
-    * l: numero de grupos sociais,
-    * n: numero de personagens,
     * i: ator atualmente sendo contemplado,
     * atores: atores ja escolhidos
 
     OUTPUT: None
     """
-    if not verifica_factibilidade(
-            grupos, l, n, i, atores):
+    global nos_visitados, n, bound
+    nos_visitados += 1
+    """
+    if (nos_visitados > 200):
+        return
+    """
+    if not verifica_factibilidade(i, atores):
+        print("factibilidade")
         return
     if len(atores) == n: # já pegou todos os personagens
+        print("n")
         custo_atual = custo(atores)
         if otimo["custo"] > custo_atual:
             otimo["atores"] = atores
             otimo["custo"] = custo_atual
         return
 
-    bound_skip = bound(n, i+1, atores)
-    bound_pick = bound(n, i+1, atores+[i])
+    print("vou entrar")
+    bound_skip = bound(i+1, atores)
+    bound_pick = bound(i+1, atores+[i])
+    print("saí")
+    print("pick: {}, skip: {}".format(bound_pick, bound_skip))
     if min(bound_pick, bound_skip) >= otimo["custo"]:
+        print("passou do otimo")
         return
     if bound_pick < bound_skip:
-        solve(grupos, l, n, i, atores+[i])
+        print("pick < skip")
+        solve(i+1, atores+[i])
         if bound_skip < otimo["custo"]:
-            solve(grupos, l, n, i, atores)
+            print("skip tbm :)")
+            solve(i+1, atores)
     else:
-        solve(grupos, l, n, i, atores)
+        print("skip < pick")
+        solve(i+1, atores)
         if bound_pick < otimo["custo"]:
-            solve(grupos, l, n, i, atores+[i])
+            print("pick tbm :)")
+            solve(i+1, atores+[i])
 
 # entrada
 bound = bound_1
@@ -136,15 +153,14 @@ for _ in range(m):
 #     })
 
 tempo_inicio = dt.datetime.now()
-ans = solve(grupos, l, n)
+solve()
 tempo_total = dt.datetime.now() - tempo_inicio
-# print(ans)
-if (ans[1] == -1):
+if otimo["custo"] == float("inf"):
     print("Inviável")
 else:
-    print("Número de nós na árvore da solução:", ans[2], file=sys.stderr)
+    print("Número de nós na árvore da solução:", nos_visitados, file=sys.stderr)
     print("Tempo de execução:", tempo_total, file=sys.stderr)
-    for ator in ans[0][:-1]:
+    for ator in otimo["atores"]:
         print(ator+1, end=' ')
     print(ans[0][-1]+1)
     print(ans[1])
