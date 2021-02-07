@@ -99,7 +99,7 @@ def solve(i=0, atores=[]):
         # print("factibilidade")
         return
     if len(atores) == n: # já pegou todos os personagens
-        # # print("n")
+        # print("n")
         custo_atual = custo(atores)
         # print("otimo: {}, {}".format(otimo["custo"], otimo["atores"]))
         # print("atual: {}, {}".format(custo_atual, atores))
@@ -119,16 +119,16 @@ def solve(i=0, atores=[]):
         # print("passou do otimo")
         return
     if bound_pick < bound_skip:
-        # # print("pick < skip")
+        # print("pick < skip")
         solve(i+1, atores+[i])
         if bound_skip < otimo["custo"]:
-            # # print("skip tbm :)")
+            # print("skip tbm :)")
             solve(i+1, atores)
     else:
-        # # print("skip < pick")
+        # print("skip < pick")
         solve(i+1, atores)
         if bound_pick < otimo["custo"]:
-            # # print("pick tbm :)")
+            # print("pick tbm :)")
             solve(i+1, atores+[i])
 
 # entrada
