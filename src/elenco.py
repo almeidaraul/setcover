@@ -133,9 +133,9 @@ def solve(i=0, atores=[]):
             solve(i+1, atores+[i])
 
 # entrada
-bound = bound_1
+bound = bound_2
 if len(sys.argv) > 1 and sys.argv[1] == '-a':
-    bound = bound_2
+    bound = bound_1
 entrada = [int(x) for x in sys.stdin.read().split()]
 cursor = 3
 l = entrada[0] # numero de grupos sociais
