@@ -52,11 +52,8 @@ def verifica_factibilidade(i, atores):
     * tem soluçoes factiveis (True ou False)
     """
     global grupos, n
-    # print("i: {}, atores: {}".format(i, atores))
     numero_atores = len(grupos)
-    # testes de corner case da função
     if numero_atores <= i and len(atores) < n:
-        # print("i")
         return False
     contemplados = set()
     for ator in atores:
@@ -68,17 +65,13 @@ def verifica_factibilidade(i, atores):
             restantes.add(grupo)
     # teste 1: não pode contemplar todos os grupos
     if len(contemplados.union(restantes)) != l:
-        # print("teste 1")
         return False
     # teste 2: escolheu mais atores do que personagens
     if len(atores) > n:
-        # print("teste 2")
         return False
     # teste 3: não vai atingir o número suficiente de atores
     if len(atores)+numero_atores-i < n:
-        # print("teste 3")
         return False
-    # print("passou")
     return True
 
 def solve(i=0, atores=[]):
@@ -91,46 +84,28 @@ def solve(i=0, atores=[]):
     """
     global nos_visitados, n, bound
     nos_visitados += 1
-    """
-    if (nos_visitados > 200):
-        return
-    """
-    # print("entrando na solve com i={} e atores={}".format(i, atores))
     if not verifica_factibilidade(i, atores):
-        # print("factibilidade")
         return
     if len(atores) == n: # já pegou todos os personagens
-        # print("n")
         custo_atual = custo(atores)
-        # print("otimo: {}, {}".format(otimo["custo"], otimo["atores"]))
-        # print("atual: {}, {}".format(custo_atual, atores))
         if otimo["custo"] > custo_atual:
             otimo["atores"] = atores
             otimo["custo"] = custo_atual
         return
 
-    # # print("vou entrar")
-    # print("skip primeiro")
     bound_skip = bound(i+1, atores)
-    # print("depois pick")
     bound_pick = bound(i+1, atores+[i])
-    # # print("saí")
-    # print("pick: {}, skip: {}".format(bound_pick, bound_skip))
     if min(bound_pick, bound_skip) >= otimo["custo"]:
-        # print("passou do otimo")
         return
     if bound_pick < bound_skip:
-        # print("pick < skip")
         solve(i+1, atores+[i])
         if bound_skip < otimo["custo"]:
-            # print("skip tbm :)")
             solve(i+1, atores)
     else:
-        # print("skip < pick")
         solve(i+1, atores)
         if bound_pick < otimo["custo"]:
-            # print("pick tbm :)")
             solve(i+1, atores+[i])
+
 
 # entrada
 bound = bound_2
@@ -151,14 +126,6 @@ for _ in range(m):
         g.append(entrada[cursor+2+i])
     grupos.append(g)
     cursor += s+2
-
-# # # print({
-#     'l': l,
-#     'm': m,
-#     'n': n,
-#     'v': v,
-#     'grupos': grupos
-#     })
 
 tempo_inicio = dt.datetime.now()
 solve()
